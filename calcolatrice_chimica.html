@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calcolatrice Chimica</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-image: url('20250602_0942_Murales%20Tavola%20Periodica%20Eni_simple_compose_01jwqsd5n6fehr06czxasmxc5p.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: #fff;
+      text-shadow: 0 0 3px #000;
+    }
+    .container {
+      background-color: rgba(0, 0, 0, 0.6);
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    select, input, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 1rem;
+    }
+    label {
+      margin-top: 10px;
+      display: block;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Calcolatrice Chimica</h1>
+  <label for="formula">Scegli una formula:</label>
+  <select id="formula">
+    <option value="cloruri">Cloruri</option>
+    <option value="solfuri">Solfuri</option>
+    <option value="titolo_soda">Titolo Soda</option>
+    <option value="alca_soda">Alcalinità Forte e Totale (Soda)</option>
+    <option value="alca_totale">Alcalinità Forte e Totale</option>
+    <option value="alca_2300">Alcalinità Forte 2300/2600</option>
+  </select>
+
+  <div id="input-fields"></div>
+
+  <button onclick="calcola()">Calcola</button>
+
+  <div class="result" id="risultato"></div>
+
+  <label for="filename">Nome file da esportare (senza estensione):</label>
+  <input type="text" id="filename" placeholder="risultato_calcolo">
+  <button onclick="esportaRisultato()">Esporta Risultato</button>
+</div>
+
+<script>
+  const inputFields = document.getElementById("input-fields");
+  const risultato = document.getElementById("risultato");
+
+  const formulas = {
+    cloruri: {
+      inputs: ["CC_consumati"],
+      calc: ({ CC_consumati }) => (CC_consumati * 0.1 * 35.5 * 1000) / 100
+    },
+    solfuri: {
+      inputs: ["CC_consumati"],
+      calc: ({ CC_consumati }) => (CC_consumati * 0.1 * 16 * 1000) / 100
+    },
+    titolo_soda: {
+      inputs: ["CC_consumati", "Grammi_campione"],
+      calc: ({ CC_consumati, Grammi_campione }) => (CC_consumati * 0.1 * 40 * 100) / (Grammi_campione * 1000)
+    },
+    alca_soda: {
+      inputs: ["CC_consumati", "Grammi_campione"],
+      calc: ({ CC_consumati, Grammi_campione }) => (CC_consumati * 0.1 * 40 * 100) / (Grammi_campione * 1000)
+    },
+    alca_totale: {
+      inputs: ["Grammi_campione"],
+      calc: ({ Grammi_campione }) => (0.1 * 50.5 * 1000) / Grammi_campione
+    },
+    alca_2300: {
+      inputs: ["CC_consumati"],
+      calc: ({ CC_consumati }) => (CC_consumati * 0.1 * 40.04 * 1000) / 100
+    }
+  };
+
+  document.getElementById("formula").addEventListener("change", updateInputs);
+  updateInputs();
+
+  function updateInputs() {
+    const formula = document.getElementById("formula").value;
+    inputFields.innerHTML = "";
+    formulas[formula].inputs.forEach(input => {
+      const label = document.createElement("label");
+      label.textContent = input.replace(/_/g, " ");
+      const field = document.createElement("input");
+      field.type = "number";
+      field.id = input;
+      field.required = true;
+      field.step = "any";
+      inputFields.appendChild(label);
+      inputFields.appendChild(field);
+    });
+  }
+
+  function calcola() {
+    const formula = document.getElementById("formula").value;
+    const inputs = {};
+    for (const input of formulas[formula].inputs) {
+      const value = parseFloat(document.getElementById(input).value);
+      if (isNaN(value)) {
+        risultato.textContent = "Inserisci tutti i valori richiesti.";
+        return;
+      }
+      inputs[input] = value;
+    }
+    const result = formulas[formula].calc(inputs);
+    risultato.textContent = `Risultato: ${result.toFixed(2)}`;
+  }
+
+  function esportaRisultato() {
+    const text = document.getElementById("risultato").textContent;
+    const nome = document.getElementById("filename").value.trim() || "risultato";
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = nome + ".txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+</script>
+</body>
+</html>
