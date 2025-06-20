@@ -159,8 +159,23 @@
       inputs[input] = value;
     }
     const result = formulas[formula].calc(inputs);
-    const truncated = Math.floor(result * 10000) / 10000;
+	let output;
+if (formula === "indice_penetrazione_bitumi") {
+  const truncated = Math.floor(result * 10000) / 10000;
+  output = `Risultato: ${truncated}`;
+  if (truncated < -1.5 || truncated > 0.7) {
+    risultato.style.color = "red";
+  } else {
+    risultato.style.color = "#fff"; // Colore normale
+  }
+  risultato.textContent = output;
+  return;
+}
+// Altre formule
+const truncated = Math.floor(result * 10000) / 10000;
+risultato.style.color = "#fff";
 risultato.textContent = `Risultato: ${truncated}`;
+
 ;
   }
 
