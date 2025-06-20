@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -50,6 +51,12 @@
     <option value="alca_soda">Alcalinità Forte e Totale (Soda)</option>
     <option value="alca_totale">Alcalinità Forte e Totale</option>
     <option value="alca_2300">Alcalinità Forte 2300/2600</option>
+    <option value="azoto_ammoniacale">Azoto Ammoniacale</option>
+    <option value="titolo_ammina">Titolo Ammina</option>
+    <option value="gasolio_riscaldamento">Gasolio di riscaldamento</option>
+    <option value="gasolio_agricolo">Gasolio Agricolo</option>
+    <option value="benzina_ecologica">Benzina Ecologica</option>
+    <option value="indice_penetrazione_bitumi">Indice Penetrazione Bitumi</option>
   </select>
 
   <div id="input-fields"></div>
@@ -68,6 +75,26 @@
   const risultato = document.getElementById("risultato");
 
   const formulas = {
+    gasolio_riscaldamento: {
+      inputs: ["Estensione_letta", "Densità"],
+      calc: ({ Estensione_letta, Densità }) => Estensione_letta / (0.400 * Densità)
+    },
+    gasolio_agricolo: {
+      inputs: ["Estensione_letta", "Densità"],
+      calc: ({ Estensione_letta, Densità }) => Estensione_letta / (0.350 * Densità)
+    },
+    benzina_ecologica: {
+      inputs: ["Estensione_letta", "Densità"],
+      calc: ({ Estensione_letta, Densità }) => Estensione_letta / (0.093 * Densità)
+    },
+    azoto_ammoniacale: {
+      inputs: ["CC_consumati"],
+      calc: ({ CC_consumati }) => (CC_consumati * 0.1 * 18 * 1000) / 100
+    },
+    titolo_ammina: {
+      inputs: ["CC_consumati", "Grammi_campione"],
+      calc: ({ CC_consumati, Grammi_campione }) => (CC_consumati * 0.1 * 119 * 100) / (Grammi_campione * 1000)
+    },
     cloruri: {
       inputs: ["CC_consumati"],
       calc: ({ CC_consumati }) => (CC_consumati * 0.1 * 35.5 * 1000) / 100
@@ -91,6 +118,13 @@
     alca_2300: {
       inputs: ["CC_consumati"],
       calc: ({ CC_consumati }) => (CC_consumati * 0.1 * 40.04 * 1000) / 100
+    },
+    indice_penetrazione_bitumi: {
+      inputs: ["Penetrazione", "Ring"],
+      calc: ({ Penetrazione, Ring }) => {
+        const coefficiente = (Math.log10(800) - Math.log10(Penetrazione)) / (Ring - 25);
+        return (20 - 500 * coefficiente) / (1 + 50 * coefficiente);
+      }
     }
   };
 
@@ -125,7 +159,9 @@
       inputs[input] = value;
     }
     const result = formulas[formula].calc(inputs);
-    risultato.textContent = `Risultato: ${result.toFixed(2)}`;
+    const truncated = Math.floor(result * 10000) / 10000;
+risultato.textContent = `Risultato: ${truncated}`;
+;
   }
 
   function esportaRisultato() {
