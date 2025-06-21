@@ -112,8 +112,8 @@
       calc: ({ CC_consumati, Grammi_campione }) => (CC_consumati * 0.1 * 40 * 100) / (Grammi_campione * 1000)
     },
     alca_totale: {
-      inputs: ["Grammi_campione"],
-      calc: ({ Grammi_campione }) => (0.1 * 50.5 * 1000) / Grammi_campione
+      inputs: ["CC_consumati", "Grammi_campione"],
+      calc: ({ CC_consumati, Grammi_campione }) => (CC_consumati * 0.1 * 50.5 * 1000) / (Grammi_campione)
     },
     alca_2300: {
       inputs: ["CC_consumati"],
